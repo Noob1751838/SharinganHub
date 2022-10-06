@@ -1,2 +1,0 @@
-# ShariganHub
-trash lego script
