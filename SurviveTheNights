@@ -1,1 +1,412 @@
-print("yay!!!")
+local library = loadstring(readfile("VenyxUILib.lua"))()
+local venyx = library.new("Sharingan Hub", 5013109572)
+local monsterESPEnabled = false
+local monsterColor = Color3.fromRGB(255, 0, 0)
+local chestESPEnabled = false
+local relicESPEnabled = false
+local relicColor = Color3.fromRGB(255, 200, 0)
+local playerESPEnabled = false
+local playerColor = Color3.fromRGB(0, 255, 0)
+local bonusItemESPEnabled = false
+local bonusItemColor = Color3.fromRGB(30, 0, 255)
+local localPlr = game.Players.LocalPlayer
+
+--UI stuff
+local themes = {
+    Background = Color3.fromRGB(24, 24, 24),
+    Glow = Color3.fromRGB(0, 0, 0),
+    Accent = Color3.fromRGB(10, 10, 10),
+    LightContrast = Color3.fromRGB(20, 20, 20),
+    DarkContrast = Color3.fromRGB(14, 14, 14),  
+    TextColor = Color3.fromRGB(255, 255, 255)
+}
+
+local page = venyx:addPage("Features", 5012544693)
+local otherPage = venyx:addPage("Others", 5012544693)
+local otherSection = otherPage:addSection("Settings")
+local section1 = page:addSection("ESP")
+local lightsection = page:addSection("Lighting")
+
+--duh
+otherSection:addKeybind("Close UI Keybind", Enum.KeyCode.RightControl, function()
+    venyx:toggle()
+end)
+
+--monster esp stuff
+section1:addToggle("Monsters ESP", false, function(value)
+    monsterESPEnabled = value
+    for _, plr in pairs(game.Players:GetPlayers()) do
+        if plr.Character and plr.Character:FindFirstChild("MonsterESP") then
+            plr.Character.MonsterESP.Enabled = value
+        end
+    end
+end)
+
+section1:addColorPicker("Monster Color", Color3.fromRGB(255, 0, 0), function(value)
+    monsterColor = value
+    for _, plr in pairs(game.Players:GetPlayers()) do
+        if plr.Character and plr.Character:FindFirstChild("MonsterESP") then
+            plr.Character.MonsterESP.FillColor = value
+        end
+    end
+end)
+
+--player esp
+section1:addToggle("Players ESP", false, function(value)
+    playerESPEnabled = value
+    for _, plr in pairs(game.Players:GetPlayers()) do
+        if plr.Character and plr.Character:FindFirstChild("PlayerESP") then
+            plr.Character.PlayerESP.Enabled = value
+        end
+    end
+end)
+
+section1:addColorPicker("Player Color", Color3.fromRGB(0, 255, 0), function(value)
+    playerColor = value
+    for _, plr in pairs(game.Players:GetPlayers()) do
+        if plr.Character and plr.Character:FindFirstChild("PlayerESP") then
+            plr.Character.PlayerESP.FillColor = value
+        end
+    end
+end)
+
+--chest esp
+section1:addToggle("Chests ESP", false, function(value)
+    chestESPEnabled = value
+    for _, chest in pairs(workspace.Objects.Chests:GetChildren()) do
+        if chest:FindFirstChild("ChestESP") then
+            chest.ChestESP.Enabled = value
+            chest.ChestBillboard.Enabled = value
+        end
+    end
+end)
+
+section1:addColorPicker("Chest Color", Color3.fromRGB(100, 150, 100), function(value)
+    for _, chest in pairs(workspace.Objects.Chests:GetChildren()) do
+        if chest:FindFirstChild("ChestESP") then
+            chest.ChestESP.FillColor = value
+            chest.ChestBillboard.TextLabel.TextColor3 = value
+        end
+    end
+end)
+
+for _, chest in pairs(workspace.Objects.Chests:GetChildren()) do
+    local hl = Instance.new("Highlight")
+    hl.Adornee = chest
+	hl.Enabled = chestESPEnabled
+	hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+	hl.OutlineTransparency = 1
+	hl.FillColor = Color3.fromRGB(100, 150, 100)
+	hl.Name = "ChestESP"
+	hl.Parent = chest
+	local BillboardGui = Instance.new("BillboardGui")
+    BillboardGui.Name = "ChestBillboard"
+    BillboardGui.AlwaysOnTop = true
+    BillboardGui.Enabled = chestESPEnabled
+    local TextLabel = Instance.new("TextLabel")
+    BillboardGui.LightInfluence = 10.000
+    BillboardGui.Size = UDim2.new(20, 0, 5, 0)
+    BillboardGui.StudsOffset = Vector3.new(0, 5, 0)
+    TextLabel.Parent = BillboardGui
+    TextLabel.BackgroundTransparency = 1
+    TextLabel.Size = UDim2.new(1, 0, 1, 0)
+    TextLabel.Font = Enum.Font.SourceSans
+    TextLabel.Text = "Chest Item: "..chest.Name
+    TextLabel.TextColor3 = Color3.fromRGB(100, 150, 100)
+    TextLabel.TextScaled = true
+    TextLabel.TextStrokeTransparency = 1
+    TextLabel.TextTransparency = 0.5
+    BillboardGui.Parent = chest
+end
+
+--relic esp
+section1:addToggle("Relic ESP", false, function(value)
+    relicESPEnabled = value
+    if workspace:FindFirstChild("TempMap") then
+        local relics = workspace.TempMap:WaitForChild("Main"):WaitForChild("Relics")
+        relics.RelicESP.Enabled = value
+        for _, relic in pairs(relics:GetChildren()) do
+            if relic:FindFirstChild("RelicModel") and relic.RelicModel:FindFirstChild("RelicBillboard") then
+                local bruh = relic.RelicModel:FindFirstChild("RelicBillboard")
+                bruh.Enabled = value
+            end
+        end
+    end
+end)
+
+section1:addColorPicker("Relic Color", Color3.fromRGB(255, 200, 0), function(value)
+    relicColor = value
+    if workspace:FindFirstChild("TempMap") then
+        local relics = workspace.TempMap:WaitForChild("Main"):WaitForChild("Relics")
+        relics.RelicESP.FillColor = value
+        for _, relic in pairs(relics:GetChildren()) do
+            if relic:FindFirstChild("RelicModel") and relic.RelicModel:FindFirstChild("RelicBillboard") then
+                local bruh = relic.RelicModel:FindFirstChild("RelicBillboard")
+                bruh.TextLabel.TextColor3 = value
+            end
+        end
+    end
+end)
+
+local function relicadded(relic)
+    task.wait(.1)
+    if not relic:FindFirstChild("RelicModel") then return end
+    relic.Size = Vector3.new(0.001, 0.001, 0.001)
+	local BillboardGui = Instance.new("BillboardGui")
+    BillboardGui.Name = "RelicBillboard"
+    BillboardGui.AlwaysOnTop = true
+    BillboardGui.Enabled = relicESPEnabled
+    local TextLabel = Instance.new("TextLabel")
+    BillboardGui.LightInfluence = 1
+    BillboardGui.Size = UDim2.new(20, 0, 5, 0)
+    BillboardGui.StudsOffset = Vector3.new(0, 5, 0)
+    TextLabel.Parent = BillboardGui
+    TextLabel.BackgroundTransparency = 1
+    TextLabel.Size = UDim2.new(1, 0, 1, 0)
+    TextLabel.Font = Enum.Font.SourceSans
+    TextLabel.Text = "Relic"
+    TextLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
+    TextLabel.TextScaled = true
+    TextLabel.TextStrokeTransparency = 1
+    TextLabel.TextTransparency = 0.5
+    BillboardGui.Parent = relic.RelicModel
+end
+
+--bonus item esp
+section1:addToggle("Extra Items ESP", false, function(value)
+    bonusItemESPEnabled = value
+    if workspace:FindFirstChild("TempMap") then
+        local items = workspace.TempMap:WaitForChild("Main"):WaitForChild("BonusItems")
+        for _, item in pairs(items:GetChildren()) do
+            if item:FindFirstChild("RelicModel") and item.RelicModel:FindFirstChild("ItemESP") then
+                item.RelicModel.ItemESP.Enabled = value
+                local bruh = item.RelicModel:FindFirstChild("ItemBillboard")
+                bruh.Enabled = value
+            end
+        end
+    end
+end)
+
+section1:addColorPicker("Extra Item Color", Color3.fromRGB(30, 0, 255), function(value)
+    bonusItemColor = value
+    if workspace:FindFirstChild("TempMap") then
+        local items = workspace.TempMap:WaitForChild("Main"):WaitForChild("BonusItems")
+        for _, item in pairs(items:GetChildren()) do
+            if item:FindFirstChild("RelicModel") and item.RelicModel:FindFirstChild("ItemESP") then
+                item.RelicModel.ItemESP.FillColor = value
+                local bruh = item.RelicModel:FindFirstChild("ItemBillboard")
+                bruh.TextLabel.TextColor3 = value
+            end
+        end
+    end
+end)
+
+local function bonusItemAdded(item)
+    task.wait(.1)
+    if not item:FindFirstChild("RelicModel") then return end
+    local hl = Instance.new("Highlight")
+    hl.Adornee = item.RelicModel
+    hl.Enabled = bonusItemESPEnabled
+	hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+	hl.OutlineTransparency = 1
+	hl.FillColor = bonusItemColor
+	hl.Name = "ItemESP"
+	hl.Parent = item.RelicModel
+	local BillboardGui = Instance.new("BillboardGui")
+    BillboardGui.Name = "ItemBillboard"
+    BillboardGui.AlwaysOnTop = true
+    BillboardGui.Enabled = bonusItemESPEnabled
+    local TextLabel = Instance.new("TextLabel")
+    BillboardGui.LightInfluence = 1
+    BillboardGui.Size = UDim2.new(20, 0, 5, 0)
+    BillboardGui.StudsOffset = Vector3.new(0, 5, 0)
+    TextLabel.Parent = BillboardGui
+    TextLabel.BackgroundTransparency = 1
+    TextLabel.Size = UDim2.new(1, 0, 1, 0)
+    TextLabel.Font = Enum.Font.SourceSans
+    TextLabel.Text = item.Name
+    TextLabel.TextColor3 = Color3.fromRGB(30, 0, 255)
+    TextLabel.TextScaled = true
+    TextLabel.TextStrokeTransparency = 1
+    TextLabel.TextTransparency = 0.5
+    BillboardGui.Parent = item.RelicModel
+end
+
+local function workspaceChildAdded(child)
+    task.wait()
+    if child.Name == "TempMap" then
+        local oldrelics = child:WaitForChild("Main"):WaitForChild("Relics")
+        oldrelics.Name = "OldRelics"
+        
+        --move to model cuz highlight limitation
+        local relics = Instance.new("Model")
+        relics.Name = "Relics"
+        relics.Parent = child.Main
+        for _, broo in pairs(oldrelics:GetChildren()) do
+            while broo.Parent ~= relics do
+                broo.Parent = relics
+                task.wait()
+            end
+        end
+        oldrelics.ChildAdded:Connect(function(nahh)
+            while nahh.Parent ~= relics do
+                nahh.Parent = relics
+                task.wait()
+            end
+        end)
+        
+        for _, relic in pairs(relics:GetChildren()) do
+            task.spawn(relicadded, relic)
+        end
+        
+        local hl = Instance.new("Highlight")
+        hl.Adornee = relics
+        hl.Enabled = relicESPEnabled
+	    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+	    hl.OutlineTransparency = 1
+	    hl.FillColor = relicColor
+	    hl.Name = "RelicESP"
+	    hl.Parent = relics
+	    
+        relics.ChildAdded:Connect(relicadded)
+        local bonusItems = child.Main:WaitForChild("BonusItems")
+        for _, item in pairs(bonusItems:GetChildren()) do
+            task.spawn(bonusItemAdded, item)
+        end
+        bonusItems.ChildAdded:Connect(bonusItemAdded)
+    end
+end
+
+workspace.ChildAdded:Connect(workspaceChildAdded)
+for _, child in pairs(workspace:GetChildren()) do
+    task.spawn(workspaceChildAdded, child)
+end
+
+-- light stuff
+local fullbrightPropertys = {
+    Brightness = 2;
+    ClockTime = 14;
+    FogEnd = 100000;
+    GlobalShadows = false;
+    OutdoorAmbient = Color3.fromRGB(128, 128, 128)
+}
+local atomPropertys = {
+    Haze = 0;
+    Decay = Color3.new(1, 1, 1);
+    Glare = 0;
+    Density = 0;
+    Color = Color3.new(1, 1, 1)
+}
+local currLightingPropertys = {}
+local currAtomPropertys = {}
+
+for property, value in pairs(fullbrightPropertys) do
+    currLightingPropertys[property] = game:GetService("Lighting")[property]
+end
+for property, value in pairs(atomPropertys) do
+    currAtomPropertys[property] = game:GetService("Lighting").Atmosphere[property]
+end
+
+local fbenabled = false
+local fogenabled = true
+
+local old;old = hookmetamethod(game, "__newindex", function(instance, index, value)
+    if not checkcaller() then
+        if instance == game:GetService("Lighting") and currLightingPropertys[index] and fbenabled then
+            currLightingPropertys[index] = value
+            return
+        elseif instance == game:GetService("Lighting").Atmosphere and currAtomPropertys[index] and not fogenabled then
+            currAtomPropertys[index] = value
+            return
+        end
+    end
+    return old(instance, index, value)
+end)
+
+lightsection:addToggle("Full bright", false, function(toggle)
+    fbenabled = toggle
+    if toggle then
+        for property, value in pairs(fullbrightPropertys) do
+            game:GetService("Lighting")[property] = value
+        end
+    else
+        for property, value in pairs(currLightingPropertys) do
+            game:GetService("Lighting")[property] = value
+        end
+    end
+end)
+
+lightsection:addToggle("Fogs", true, function(toggle)
+    fogenabled = toggle
+    if not toggle then
+        for property, value in pairs(atomPropertys) do
+            game:GetService("Lighting").Atmosphere[property] = value
+        end
+    else
+        for property, value in pairs(currAtomPropertys) do
+            game:GetService("Lighting").Atmosphere[property] = value
+        end
+    end
+end)
+
+for theme, color in pairs(themes) do -- theme stuff
+    venyx:setTheme(theme, color)
+end
+
+-- load UI
+venyx:SelectPage(venyx.pages[1], true)
+
+--real script stuff
+local function chrAdded(chr)
+    task.wait(1)
+    if chr:FindFirstChild("Stats") then
+        local hl = Instance.new("Highlight")
+        hl.Adornee = chr
+		hl.Enabled = monsterESPEnabled
+		hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+		hl.Name = "MonsterESP"
+		hl.OutlineTransparency = 0.5
+		hl.FillColor = monsterColor
+		hl.Parent = chr
+	else
+	    local hl = Instance.new("Highlight")
+        hl.Adornee = chr
+		hl.Enabled = playerESPEnabled
+		hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+		hl.Name = "PlayerESP"
+		hl.FillColor = playerColor
+		hl.OutlineTransparency = 0.5
+		hl.Parent = chr
+    end
+    local function partadded(part)
+        task.wait()
+        if part:IsA("BasePart") and (part.Transparency <= 0.1 or part.Name == "Sheet") then
+            part.Transparency = 0
+            part:GetPropertyChangedSignal("Transparency"):Connect(function()
+                if part.Transparency > 0 then
+                    part.Transparency = 0
+                end
+            end)
+        elseif part:IsA("Highlight") and part.Name ~= "MonsterESP" and part.Name ~= "PlayerESP" then
+            print(part.Name)
+            part:Destroy()
+        end
+    end
+    for _, part in pairs(chr:GetDescendants()) do
+        task.spawn(partadded, part)
+    end
+    chr.DescendantAdded:Connect(partadded)
+end
+local function plrAdded(plr)
+    if plr ~= localPlr then
+        if plr.Character then
+            chrAdded(plr.Character)
+        end
+        plr.CharacterAdded:Connect(chrAdded)
+    end
+end
+
+for i, v in pairs(game.Players:GetPlayers()) do
+    task.spawn(plrAdded, v)
+end
+game.Players.PlayerAdded:Connect(plrAdded)
